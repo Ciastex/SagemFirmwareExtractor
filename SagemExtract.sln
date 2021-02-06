@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagemExtrac", "SagemExtrac\SagemExtrac.csproj", "{1DB2A3EA-6414-4950-B64B-97C43ACC7AC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagemExtract", "SagemExtract\SagemExtract.csproj", "{1DB2A3EA-6414-4950-B64B-97C43ACC7AC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

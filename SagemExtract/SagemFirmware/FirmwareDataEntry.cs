@@ -1,13 +1,18 @@
-namespace SagemExtrac
+using System.Text;
+using SagemExtract.DataProcessing;
+
+namespace SagemExtract.SagemFirmware
 {
-    public class SectionB_Entry
+    public class FirmwareDataEntry
     {
         public byte[] Checksum { get; }
+
+        public string FileName { get; }
         public byte[] Data { get; }
 
         public int Size { get; private set; }
 
-        public SectionB_Entry(BinaryReaderBE br)
+        public FirmwareDataEntry(BinaryReaderBigEndian br)
         {
             br.ReadUInt32(); // EntrySizeSignature
             Size += 4;
@@ -30,8 +35,18 @@ namespace SagemExtrac
             var dataSize = br.ReadInt32();
             Size += 4;
 
-            Data = br.ReadBytes(dataSize);
+            var data = br.ReadBytes(dataSize);
             Size += dataSize;
+
+            var sb = new StringBuilder();
+            foreach (var b in data)
+            {
+                sb.Append($"{b:X2}");
+            }
+            sb.Append(".bin");
+
+            Data = data;
+            FileName = sb.ToString();
         }
     }
 }

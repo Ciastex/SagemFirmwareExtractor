@@ -1,11 +1,11 @@
 using System;
 using System.IO;
 
-namespace SagemExtrac
+namespace SagemExtract.DataProcessing
 {
-    public class BinaryReaderBE : BinaryReader
+    public class BinaryReaderBigEndian : BinaryReader
     {
-        public BinaryReaderBE(Stream stream) : base(stream)
+        public BinaryReaderBigEndian(Stream stream) : base(stream)
         {
         }
 
