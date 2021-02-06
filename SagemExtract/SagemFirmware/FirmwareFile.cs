@@ -49,7 +49,10 @@ namespace SagemExtract.SagemFirmware
             var romBytes = new List<byte>();
 
             foreach (var entry in DataSection.Entries)
-                romBytes.AddRange(entry.Data);
+            {
+                if (entry.Data.Length > 65000)
+                    romBytes.AddRange(entry.Data);
+            }
 
             ContiguousRomData = romBytes.ToArray();
         }

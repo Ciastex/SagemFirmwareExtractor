@@ -9,6 +9,16 @@
       <None Update="firmware_251602D">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="255211.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="255211.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="PEHandler" Version="1.0.3.4" />
     </ItemGroup>
 
 </Project>

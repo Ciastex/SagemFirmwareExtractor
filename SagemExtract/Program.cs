@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using SagemExtract.SagemFirmware;
 
 namespace SagemExtract
@@ -19,7 +16,8 @@ namespace SagemExtract
         // 0x00002110: SectionB_Entry_ChecksumLength
         // 0x00002111: SectionB_Entry_DataLength
 
-        private static bool _saveChunks;
+        private static bool _extractExe;
+        private static bool _dontExtractFirmware;
 
         static void Main(string[] args)
         {
@@ -35,20 +33,75 @@ namespace SagemExtract
                 return;
             }
 
-            if (args.Contains("--save-chunks"))
-                _saveChunks = true;
+            if (args.Contains("--extract-exe"))
+            {
+                _extractExe = true;
+                
+                if (args.Contains("--fw-noextract"))
+                    _dontExtractFirmware = true;
+            }
 
-            var targetDir = Path.Combine(AppContext.BaseDirectory, $"{args[0]}.extracted");
+            var firmwarePath = args[0];
+            if (_extractExe)
+            {
+                try
+                {
+                    ExtractFirmwareFromExecutable(firmwarePath, out firmwarePath);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Failed to extract the firmware from EXE: {e.Message}.");
+                    return;
+                }
+            }
+
+            if (!_dontExtractFirmware)
+            {
+                try
+                {
+                    ExtractFirmware(firmwarePath);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Failed to extract the firmware: {e.Message}");
+                }
+            }
+        }
+
+        static void ExtractFirmwareFromExecutable(string filePath, out string firmwarePath)
+        {
+            firmwarePath = string.Empty;
+
+            var fs = new FileStream(filePath, FileMode.Open);
+            var ms = new MemoryStream();
+            fs.CopyTo(ms);
+            fs.Seek(0, SeekOrigin.Begin);
+            var peFile = new PEHandler.PEFile(fs, 1024);
+            var entry = peFile.RsrcHandler.GetEntryFromPath("PBCS/1/0");
+
+            if (entry == null)
+            {
+                throw new Exception("PBCS resource entry not found, cannot extract from installer executable.");
+            }
+            
+            firmwarePath = Path.Combine(
+                Environment.CurrentDirectory,
+                Path.GetFileNameWithoutExtension(filePath) + ".ROM"
+            );
+
+            File.WriteAllBytes(firmwarePath, entry.Data);
+        }
+
+        static void ExtractFirmware(string filePath)
+        {
+            var targetDir = Path.Combine(Environment.CurrentDirectory, $"{filePath}.extracted");
             var targetFsDir = Path.Combine(targetDir, "file_system");
-
-            if (!Directory.Exists(targetDir))
-                Directory.CreateDirectory(targetDir);
 
             if (!Directory.Exists(targetFsDir))
                 Directory.CreateDirectory(targetFsDir);
 
-            var firmwareFile = new FirmwareFile(args[0]);
-            
+            var firmwareFile = new FirmwareFile(filePath);
+
             var fileSystemScanner = new FileSystemScanner(firmwareFile.ContiguousRomData);
             fileSystemScanner.ExtractFileSystem(targetFsDir);
         }

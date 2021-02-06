@@ -1,7 +1,9 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using SagemExtract.DataProcessing;
 using SagemExtract.DataProcessing.Extensions;
 
 namespace SagemExtract.SagemFirmware
@@ -41,6 +43,7 @@ namespace SagemExtract.SagemFirmware
                         var header = Encoding.ASCII.GetString(
                             br.ReadBytes(headerEnd - startIndex)
                         );
+                        Console.WriteLine(header);
 
                         var headerEntries = header.Split('\n');
                         var dataLength = int.Parse(headerEntries[1].Split(' ')[0]);
@@ -52,6 +55,9 @@ namespace SagemExtract.SagemFirmware
                         foreach (var b in checksum)
                             fileName += $"{b:X2}";
 
+                        fileName += "." + FileTypeRecognizer.TryRecognizeFileExtension(fileData);
+
+                        Console.WriteLine($"Extracting to {fileName}...\n");
                         File.WriteAllBytes(
                             Path.Combine(targetDirectory, fileName),
                             fileData
